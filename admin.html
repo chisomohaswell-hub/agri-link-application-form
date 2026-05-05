@@ -1,26 +1,69 @@
-// 1. DATABASE CONNECTION
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri-Link | Admin Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 20px; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #2d5a27; border-bottom: 2px solid #2d5a27; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        button { background: #2d5a27; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1e3d1a; }
+        .table-wrapper { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82em; min-width: 1400px; }
+        th { background-color: #2d5a27; color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        .sig-img { max-width: 80px; height: auto; border: 1px solid #eee; background: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>
+        Agri-Link Loan Records
+        <button onclick="fetchRecords()">Refresh Data</button>
+    </h2>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Borrower Name & Address</th>
+                    <th>National ID (Number)</th>
+                    <th>Amount (MWK)</th>
+                    <th>Borrower Sig</th>
+                    <th>Witness 1 & Address</th>
+                    <th>W1 Sig</th>
+                    <th>Witness 2 & Address</th>
+                    <th>W2 Sig</th>
+                </tr>
+            </thead>
+            <tbody id="loanTableBody">
+                <tr><td colspan="9" style="text-align:center; padding: 20px;">Click "Refresh Data" to load records...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
     const SUPABASE_URL = 'https://hzfmqewyzrbiyrobrutb.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_oD7WVko3sBDT0Aw9WSM8lg_JmApl3tQ';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // 2. FETCH DATA FUNCTION
     async function fetchRecords() {
         const tableBody = document.getElementById('loanTableBody');
-        tableBody.innerHTML = '<tr><td colspan="9" class="no-data">Loading application data...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Loading...</td></tr>';
 
         const { data, error } = await _supabase
-            .from('borrowers') // Updated to match your SQL: public.borrowers
+            .from('borrowers') 
             .select('*')
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Supabase Error:', error);
-            alert('Error fetching data: ' + error.message);
-            return;
-        }
-
-        if (!data || data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="9" class="no-data">No records found.</td></tr>';
+            alert('Error: ' + error.message);
             return;
         }
 
@@ -30,24 +73,19 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${new Date(row.created_at).toLocaleDateString()}</td>
-                <td>
-                    <strong>${row.full_name || 'N/A'}</strong><br>
-                    <small>${row.borrower_address || row.village || 'No Address'}</small>
-                </td>
+                <td><strong>${row.full_name || 'N/A'}</strong><br><small>${row.borrower_address || row.village || 'No Address'}</small></td>
                 <td>${row.id_number || 'N/A'}</td>
                 <td>${Number(row.amount || 0).toLocaleString()}</td>
                 <td>${row.signature ? `<img src="${row.signature}" class="sig-img">` : 'No Sig'}</td>
-                <td>
-                    <strong>${row.witness1_name || 'N/A'}</strong><br>
-                    <small>${row.witness1_address || 'No Address'}</small>
-                </td>
+                <td><strong>${row.witness1_name || 'N/A'}</strong><br><small>${row.witness1_address || 'No Address'}</small></td>
                 <td>${row.witness1_signature ? `<img src="${row.witness1_signature}" class="sig-img">` : 'No Sig'}</td>
-                <td>
-                    <strong>${row.witness2_name || 'N/A'}</strong><br>
-                    <small>${row.witness2_address || 'No Address'}</small>
-                </td>
+                <td><strong>${row.witness2_name || 'N/A'}</strong><br><small>${row.witness2_address || 'No Address'}</small></td>
                 <td>${row.witness2_signature ? `<img src="${row.witness2_signature}" class="sig-img">` : 'No Sig'}</td>
             `;
             tableBody.appendChild(tr);
         });
     }
+</script>
+
+</body>
+</html>
