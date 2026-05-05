@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri-Link | Admin Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .admin-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
+        h2 { color: #1e4d2b; border-bottom: 3px solid #24b47e; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+        th { background: #24b47e; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        tr:hover { background-color: #f9f9f9; }
+        .sig-img { width: 120px; height: auto; border: 1px solid #eee; background: #fff; border-radius: 4px; }
+        .status-tag { background: #e3f2fd; color: #1565c0; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8em; }
+        .refresh-btn { background: #2c3e50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; float: right; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <button class="refresh-btn" onclick="fetchData()">Refresh Data</button>
+    <h2>Agri-Link Loan Records</h2>
+    
+    <div id="loading">Loading applications...</div>
+    
+    <table id="recordsTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Borrower Name</th>
+                <th>District</th>
+                <th>Amount (MWK)</th>
+                <th>Borrower Signature</th>
+                <th>Witness 1</th>
+                <th>W1 Signature</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://hzfmqewyzrbiyrobrutb.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oD7WVko3sBDT0Aw9WSM8lg_JmApl3tQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function fetchData() {
+        const { data, error } = await supabaseClient
+            .from('borrowers')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching data:', error);
+            document.getElementById('loading').innerText = "Error loading data.";
+            return;
+        }
+
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        
+        data.forEach(record => {
+            const row = `
+                <tr>
+                    <td>${new Date(record.application_date).toLocaleDateString()}</td>
+                    <td><strong>${record.full_name}</strong><br><small>${record.phone}</small></td>
+                    <td>${record.district || 'N/A'}</td>
+                    <td>${record.amount.toLocaleString()}</td>
+                    <td><img src="${record.signature}" class="sig-img" alt="No Sig"></td>
+                    <td>${record.witness1_name || 'N/A'}</td>
+                    <td>${record.witness1_signature ? `<img src="${record.witness1_signature}" class="sig-img">` : 'N/A'}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('recordsTable').style.display = 'table';
+    }
+
+    // Load data on page open
+    fetchData();
+</script>
+
+</body>
+</html>
+
+        
