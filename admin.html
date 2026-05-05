@@ -8,15 +8,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 20px; }
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        /* Password Overlay Styles */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #2d5a27; display: flex; justify-content: center; 
+            align-items: center; z-index: 9999; color: white; flex-direction: column;
+        }
+        .login-box { background: white; padding: 30px; border-radius: 8px; color: #333; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .login-box input { padding: 10px; width: 200px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; display: block; margin: 10px auto; }
+        
+        /* Main Container Styles */
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
         h2 { color: #2d5a27; border-bottom: 2px solid #2d5a27; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .btn-group { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-group { display: flex; gap: 8px; }
         button { border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 0.9em; }
         .btn-refresh { background: #2d5a27; }
         .btn-csv { background: #1a3d5a; }
-        .btn-pdf { background: #8b0000; } /* Dark Red for PDF */
+        .btn-pdf { background: #8b0000; }
         .table-wrapper { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.72em; min-width: 1600px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.7em; min-width: 1900px; }
         th { background-color: #2d5a27; color: white; padding: 10px; text-align: left; position: sticky; top: 0; }
         td { padding: 8px; border-bottom: 1px solid #ddd; vertical-align: top; line-height: 1.3; }
         .sig-img { max-width: 70px; height: auto; border: 1px solid #eee; background: white; display: block; }
@@ -25,6 +36,17 @@
 </head>
 <body>
 
+<!-- Login Section -->
+<div id="login-overlay">
+    <div class="login-box">
+        <h3 style="margin-top:0;">Agri-Link Secure Admin</h3>
+        <p>Please enter your access password:</p>
+        <input type="password" id="adminPassword" placeholder="Password">
+        <button class="btn-refresh" onclick="checkPassword()">Login</button>
+    </div>
+</div>
+
+<!-- Data Section (Hidden by default) -->
 <div class="container" id="admin-content">
     <h2>
         Agri-Link Loan Records
@@ -45,9 +67,9 @@
                     <th>Loan Terms</th>
                     <th>Collateral</th>
                     <th>Sig</th>
-                    <th>Witness 1</th>
+                    <th>Witness 1 Details</th>
                     <th>W1 Sig</th>
-                    <th>Witness 2</th>
+                    <th>Witness 2 Details</th>
                     <th>W2 Sig</th>
                 </tr>
             </thead>
@@ -59,6 +81,20 @@
 </div>
 
 <script>
+    // Set your desired password here
+    const SECRET_KEY = "AgriLink2026"; 
+
+    function checkPassword() {
+        const input = document.getElementById('adminPassword').value;
+        if (input === SECRET_KEY) {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+            fetchRecords(); // Automatically load data on successful login
+        } else {
+            alert("Access Denied: Incorrect Password");
+        }
+    }
+
     const SUPABASE_URL = 'https://hzfmqewyzrbiyrobrutb.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_oD7WVko3sBDT0Aw9WSM8lg_JmApl3tQ';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -84,7 +120,7 @@
                 <td>${row.application_date || new Date(row.created_at).toLocaleDateString()}</td>
                 <td>
                     <strong>${row.full_name || 'N/A'}</strong><br>
-                    ${row.borrower_address || row.village || ''}<br>
+                    ${row.borrower_address || row.village || ''}, ${row.district || ''}<br>
                     📞 ${row.phone || ''}
                 </td>
                 <td>${row.id_number || 'N/A'}</td>
@@ -94,12 +130,20 @@
                 </td>
                 <td>
                     <strong>${row.collateral_type || 'N/A'}</strong><br>
-                    Value: ${Number(row.collateral_value || 0).toLocaleString()}
+                    Val: ${Number(row.collateral_value || 0).toLocaleString()}
                 </td>
                 <td>${row.signature ? `<img src="${row.signature}" class="sig-img">` : 'N/A'}</td>
-                <td><strong>${row.witness1_name || 'N/A'}</strong><br><small>📞 ${row.witness1_phone || ''}</small></td>
+                <td>
+                    <strong>${row.witness1_name || 'N/A'}</strong><br>
+                    <small>${row.witness1_address || 'No Address'}</small><br>
+                    <small>📞 ${row.witness1_phone || ''}</small>
+                </td>
                 <td>${row.witness1_signature ? `<img src="${row.witness1_signature}" class="sig-img">` : 'N/A'}</td>
-                <td><strong>${row.witness2_name || 'N/A'}</strong><br><small>📞 ${row.witness2_phone || ''}</small></td>
+                <td>
+                    <strong>${row.witness2_name || 'N/A'}</strong><br>
+                    <small>${row.witness2_address || 'No Address'}</small><br>
+                    <small>📞 ${row.witness2_phone || ''}</small>
+                </td>
                 <td>${row.witness2_signature ? `<img src="${row.witness2_signature}" class="sig-img">` : 'N/A'}</td>
             `;
             tableBody.appendChild(tr);
@@ -127,13 +171,12 @@
     function downloadPDF() {
         const element = document.getElementById('admin-content');
         const opt = {
-            margin:       [10, 5, 10, 5],
-            filename:     'AgriLink_Loan_Records.pdf',
+            margin:       [5, 5, 5, 5],
+            filename:     'AgriLink_Full_Records.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            jsPDF:        { unit: 'mm', format: 'a3', orientation: 'landscape' }
         };
-        // New tab to ensure clean render
         html2pdf().set(opt).from(element).save();
     }
 </script>
