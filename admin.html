@@ -9,13 +9,17 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 20px; }
         .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h2 { color: #2d5a27; border-bottom: 2px solid #2d5a27; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        button { background: #2d5a27; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #1e3d1a; }
+        .btn-group { display: flex; gap: 10px; }
+        button { border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-refresh { background: #2d5a27; }
+        .btn-download { background: #1a3d5a; }
         .table-wrapper { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.82em; min-width: 1400px; }
-        th { background-color: #2d5a27; color: white; padding: 12px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
-        .sig-img { max-width: 80px; height: auto; border: 1px solid #eee; background: white; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75em; min-width: 1800px; }
+        th { background-color: #2d5a27; color: white; padding: 12px; text-align: left; position: sticky; top: 0; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: top; line-height: 1.4; }
+        .sig-img { max-width: 80px; height: auto; border: 1px solid #eee; background: white; display: block; margin-top: 5px; }
+        .amount-cell { font-weight: bold; color: #2d5a27; }
+        .collateral-box { font-style: italic; color: #555; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -23,26 +27,30 @@
 <div class="container">
     <h2>
         Agri-Link Loan Records
-        <button onclick="fetchRecords()">Refresh Data</button>
+        <div class="btn-group">
+            <button class="btn-refresh" onclick="fetchRecords()">Refresh Data</button>
+            <button class="btn-download" onclick="downloadCSV()">Download CSV</button>
+        </div>
     </h2>
 
     <div class="table-wrapper">
-        <table>
+        <table id="adminTable">
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Borrower Name & Address</th>
-                    <th>National ID (Number)</th>
-                    <th>Amount (MWK)</th>
+                    <th>Borrower Details</th>
+                    <th>National ID</th>
+                    <th>Loan Terms</th>
+                    <th>Collateral</th>
                     <th>Borrower Sig</th>
-                    <th>Witness 1 & Address</th>
+                    <th>Witness 1 Details</th>
                     <th>W1 Sig</th>
-                    <th>Witness 2 & Address</th>
+                    <th>Witness 2 Details</th>
                     <th>W2 Sig</th>
                 </tr>
             </thead>
             <tbody id="loanTableBody">
-                <tr><td colspan="9" style="text-align:center; padding: 20px;">Click "Refresh Data" to load records...</td></tr>
+                <tr><td colspan="10" style="text-align:center; padding: 20px;">Click "Refresh Data" to load records...</td></tr>
             </tbody>
         </table>
     </div>
@@ -55,7 +63,7 @@
 
     async function fetchRecords() {
         const tableBody = document.getElementById('loanTableBody');
-        tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Loading...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Loading...</td></tr>';
 
         const { data, error } = await _supabase
             .from('borrowers') 
@@ -63,7 +71,7 @@
             .order('created_at', { ascending: false });
 
         if (error) {
-            alert('Error: ' + error.message);
+            alert('Error fetching data: ' + error.message);
             return;
         }
 
@@ -72,18 +80,57 @@
         data.forEach(row => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${new Date(row.created_at).toLocaleDateString()}</td>
-                <td><strong>${row.full_name || 'N/A'}</strong><br><small>${row.borrower_address || row.village || 'No Address'}</small></td>
+                <td>${row.application_date || new Date(row.created_at).toLocaleDateString()}</td>
+                <td>
+                    <strong>${row.full_name || 'N/A'}</strong><br>
+                    ${row.borrower_address || row.village || ''}, ${row.district || ''}<br>
+                    📞 ${row.phone || 'No Phone'}
+                </td>
                 <td>${row.id_number || 'N/A'}</td>
-                <td>${Number(row.amount || 0).toLocaleString()}</td>
+                <td class="amount-cell">
+                    MWK ${Number(row.amount || 0).toLocaleString()}<br>
+                    <small>${row.interest_rate || 0}% Interest | ${row.repayment_months || 0} Months</small>
+                </td>
+                <td class="collateral-box">
+                    <strong>${row.collateral_type || 'None'}</strong><br>
+                    Valued at: MWK ${Number(row.collateral_value || 0).toLocaleString()}
+                </td>
                 <td>${row.signature ? `<img src="${row.signature}" class="sig-img">` : 'No Sig'}</td>
-                <td><strong>${row.witness1_name || 'N/A'}</strong><br><small>${row.witness1_address || 'No Address'}</small></td>
+                <td>
+                    <strong>${row.witness1_name || 'N/A'}</strong><br>
+                    <small>${row.witness1_address || 'No Address'}</small><br>
+                    <small>📞 ${row.witness1_phone || ''}</small>
+                </td>
                 <td>${row.witness1_signature ? `<img src="${row.witness1_signature}" class="sig-img">` : 'No Sig'}</td>
-                <td><strong>${row.witness2_name || 'N/A'}</strong><br><small>${row.witness2_address || 'No Address'}</small></td>
+                <td>
+                    <strong>${row.witness2_name || 'N/A'}</strong><br>
+                    <small>${row.witness2_address || 'No Address'}</small><br>
+                    <small>📞 ${row.witness2_phone || ''}</small>
+                </td>
                 <td>${row.witness2_signature ? `<img src="${row.witness2_signature}" class="sig-img">` : 'No Sig'}</td>
             `;
             tableBody.appendChild(tr);
         });
+    }
+
+    function downloadCSV() {
+        const rows = document.querySelectorAll("table tr");
+        let csv = [];
+        for (let i = 0; i < rows.length; i++) {
+            let row = [], cols = rows[i].querySelectorAll("td, th");
+            for (let j = 0; j < cols.length; j++) {
+                let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/,/g, ";");
+                row.push('"' + data + '"');
+            }
+            csv.push(row.join(","));
+        }
+        const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "AgriLink_Data_" + new Date().toISOString().split('T')[0] + ".csv";
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
     }
 </script>
 
