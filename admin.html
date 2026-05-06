@@ -12,6 +12,7 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 20px; }
         #auth-container { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
+        .login-logo { width: 150px; height: auto; margin-bottom: 10px; }
         input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; background: #2d5a27; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .dashboard { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -32,9 +33,9 @@
 
 <!-- LOGIN FORM -->
 <div id="auth-container">
-    <i class="fas fa-user-shield fa-3x" style="color: #2d5a27; margin-bottom: 15px;"></i>
+    <img src="logo1.jpg" alt="Agri-Link Logo" class="login-logo">
     <h2 style="color: #2d5a27; margin-top: 0;">Agri-Link Admin</h2>
-    <p>Secure Researcher Access</p>
+    <p>Agri-Link Admin Access</p>
     <input type="email" id="email" placeholder="Email Address">
     <input type="password" id="password" placeholder="Password">
     <button class="btn-login" onclick="handleLogin()">
@@ -120,10 +121,16 @@
                 <td>MWK ${Number(row.amount || 0).toLocaleString()}<br><small>${row.interest_rate || 0}% | ${row.repayment_months || 0} Mo</small></td>
                 <td><strong>${row.collateral_type || 'N/A'}</strong><br>Val: ${Number(row.collateral_value || 0).toLocaleString()}</td>
                 <td>${row.signature ? `<img src="${row.signature}" class="sig-img">` : 'N/A'}</td>
-                <td><strong>${row.witness1_name || 'N/A'}</strong><br><small>📍 ${row.witness1_address || ''}</small></td>
-                <td>${row.witness1_signature ? `<img src="${row.witness1_signature}" class="sig-img">` : 'N/A'}</td>
-                <td><strong>${row.witness2_name || 'N/A'}</strong><br><small>📍 ${row.witness2_address || ''}</small></td>
-                <td>${row.witness2_signature ? `<img src="${row.witness2_signature}" class="sig-img">` : 'N/A'}</td>
+                <td>
+                    <strong>${row.witness1_name || 'N/A'}</strong><br>
+                    <small>📍 ${row.witness1_address || ''}</small>
+                </td>
+                <td>${row.witness1_signature ? `<img src="${row.witness1_signature}" class="witness1_signature">` : 'N/A'}</td>
+                <td>
+                    <strong>${row.witness2_name || 'N/A'}</strong><br>
+                    <small>📍 ${row.witness2_address || ''}</small>
+                </td>
+                <td>${row.witness2_signature ? `<img src="${row.witness2_signature}" class="witness2_signature">` : 'N/A'}</td>
             </tr>
         `).join('');
     }
