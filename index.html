@@ -6,45 +6,103 @@
     <title>Agri-Link Financial Solutions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2d5a27; --secondary: #1a3d5a; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); line-height: 1.4; color: #333; }
+        :root { 
+            --primary: #2d5a27; 
+            --secondary: #1a3d5a; 
+            --accent: #fbc02d; /* Poster Yellow */
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            /* Amazing Mesh Gradient Background */
+            background: radial-gradient(at 0% 0%, rgba(45, 90, 39, 0.15) 0px, transparent 50%),
+                        radial-gradient(at 100% 0%, rgba(26, 61, 90, 0.1) 0px, transparent 50%),
+                        radial-gradient(at 100% 100%, rgba(251, 192, 45, 0.1) 0px, transparent 50%),
+                        radial-gradient(at 0% 100%, rgba(45, 90, 39, 0.1) 0px, transparent 50%),
+                        #f4f7f6;
+            background-attachment: fixed;
+            line-height: 1.4; 
+            color: #333; 
+        }
         
-        /* Compact Header */
-        nav { background: white; padding: 5px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
-        .logo-area img { height: 45px; }
+        nav { 
+            background: var(--glass); 
+            backdrop-filter: blur(10px);
+            padding: 8px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
+        .logo-area img { height: 50px; }
 
-        /* Reduced Hero Height */
-        .hero { background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&q=80&w=2000'); 
-                padding: 50px 10%; text-align: center; color: white; }
-        .hero h1 { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; }
-        .hero p { font-size: 1rem; max-width: 700px; margin: 0 auto; }
+        .hero { 
+            background: linear-gradient(135deg, rgba(45, 90, 39, 0.8), rgba(26, 61, 90, 0.8)), 
+                        url('https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&q=80&w=2000'); 
+            background-size: cover; 
+            background-position: center; 
+            padding: 60px 10%; 
+            text-align: center; 
+            color: white;
+            clip-path: ellipse(150% 100% at 50% 0%); /* Curved bottom like the poster logo */
+        }
 
-        /* Compact Sections */
-        .section { padding: 30px 5%; text-align: center; background: white; }
-        .section-title { color: var(--primary); margin-bottom: 20px; font-size: 1.8rem; text-transform: uppercase; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 5px; }
+        .section { padding: 40px 5%; text-align: center; }
+        .section-title { 
+            color: var(--primary); 
+            margin-bottom: 25px; 
+            font-size: 2rem; 
+            text-transform: uppercase; 
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
         
-        /* Tightened Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         
-        .card { padding: 15px; border-radius: 8px; background: var(--light); border-top: 4px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .card i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; }
-        .card h3 { color: var(--secondary); margin-bottom: 5px; font-size: 1.1rem; }
-        .card p { font-size: 0.9rem; margin: 0; }
+        /* Modern Glass Cards */
+        .card { 
+            padding: 20px; 
+            border-radius: 15px; 
+            background: var(--glass); 
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            transition: 0.4s;
+        }
+        .card:hover { 
+            transform: translateY(-10px); 
+            background: white;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15); 
+        }
+        .card i { font-size: 2.2rem; color: var(--primary); margin-bottom: 15px; }
+        .card h3 { color: var(--secondary); margin-bottom: 8px; font-size: 1.2rem; }
 
-        /* Minimal Contact Box */
-        .contact-box { max-width: 500px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .btn-email { display: inline-block; background: var(--primary); color: white; padding: 10px 25px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        .btn-email { 
+            display: inline-block; 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: white; 
+            padding: 12px 30px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
 
-        footer { background: var(--secondary); color: white; padding: 30px 10%; text-align: center; }
-        .footer-links { margin-top: 15px; display: flex; justify-content: center; gap: 20px; font-size: 0.85rem; }
-        .footer-links a { color: #ccc; text-decoration: none; display: flex; align-items: center; gap: 5px; }
+        footer { background: var(--secondary); color: white; padding: 40px 10%; text-align: center; }
+        .footer-links a { color: var(--accent); text-decoration: none; margin: 0 10px; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="logo-area"><img src="logo1.jpg" alt="Agri-Link Logo"></div>
-    <div style="font-weight: bold; color: var(--primary); font-size: 0.9rem;">OFFICIAL WEBSITE</div>
+    <div style="font-weight: bold; color: var(--primary); font-size: 0.9rem;">AGRI-LINK FINANCIAL SOLUTIONS</div>
 </nav>
 
 <section class="hero">
@@ -64,7 +122,7 @@
     </div>
 </section>
 
-<section class="section" style="background-color: #f9f9f9;">
+<section class="section">
     <h2 class="section-title">Our Services</h2>
     <div class="grid">
         <div class="card"><i class="fas fa-tractor"></i><h3>Agricultural Loans</h3><p>Funding for seeds and farm equipment.</p></div>
@@ -74,17 +132,14 @@
     </div>
 </section>
 
-<section class="section" style="background: var(--light);">
-    <div class="contact-box">
-        <p style="margin-bottom:15px; font-weight:500;">Need more information?</p>
-        <a href="mailto:chisomohaswell@gmail.com?subject=Agri-Link Inquiry" class="btn-email">
-            <i class="fas fa-envelope"></i> Request Information
-        </a>
-    </div>
+<section class="section">
+    <a href="mailto:chisomohaswell@gmail.com?subject=Agri-Link Inquiry" class="btn-email">
+        <i class="fas fa-envelope"></i> Request Information
+    </a>
 </section>
 
 <footer>
-    <p style="font-size: 0.8rem;">&copy; 2026 Agri-Link Financial Solutions. All Rights Reserved.</p>
+    <p>&copy; 2026 Agri-Link Financial Solutions. All Rights Reserved.</p>
     <div class="footer-links">
         <a href="apply.html"><i class="fas fa-file-invoice-dollar"></i> Borrower Portal</a>
         <a href="admin.html"><i class="fas fa-lock"></i> Staff Login</a>
