@@ -9,140 +9,172 @@
         :root { 
             --primary: #2d5a27; 
             --secondary: #1a3d5a; 
-            --accent: #fbc02d; /* Poster Yellow */
-            --glass: rgba(255, 255, 255, 0.9);
+            --accent: #fbc02d; 
+            --glass: rgba(255, 255, 255, 0.85);
         }
 
         body { 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0; 
-            /* Amazing Mesh Gradient Background */
-            background: radial-gradient(at 0% 0%, rgba(45, 90, 39, 0.15) 0px, transparent 50%),
-                        radial-gradient(at 100% 0%, rgba(26, 61, 90, 0.1) 0px, transparent 50%),
-                        radial-gradient(at 100% 100%, rgba(251, 192, 45, 0.1) 0px, transparent 50%),
-                        radial-gradient(at 0% 100%, rgba(45, 90, 39, 0.1) 0px, transparent 50%),
-                        #f4f7f6;
+            /* Animated Mesh Gradient Background */
+            background: linear-gradient(125deg, #f4f7f6 0%, #e8efeb 50%, #d9e4dd 100%);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(45, 90, 39, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(26, 61, 90, 0.1) 0px, transparent 50%),
+                url("https://www.transparenttextures.com/patterns/cubes.png"); /* Subtle pattern */
             background-attachment: fixed;
-            line-height: 1.4; 
+            line-height: 1.5; 
             color: #333; 
         }
         
         nav { 
-            background: var(--glass); 
-            backdrop-filter: blur(10px);
-            padding: 8px 5%; 
+            background: white; 
+            padding: 10px 5%; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
             position: sticky; 
             top: 0; 
             z-index: 1000; 
         }
-        .logo-area img { height: 50px; }
+        .logo-area img { height: 55px; }
 
         .hero { 
-            background: linear-gradient(135deg, rgba(45, 90, 39, 0.8), rgba(26, 61, 90, 0.8)), 
+            background: linear-gradient(rgba(45, 90, 39, 0.75), rgba(26, 61, 90, 0.85)), 
                         url('https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&q=80&w=2000'); 
             background-size: cover; 
             background-position: center; 
-            padding: 60px 10%; 
+            padding: 70px 10%; 
             text-align: center; 
             color: white;
-            clip-path: ellipse(150% 100% at 50% 0%); /* Curved bottom like the poster logo */
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%);
         }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 15px; letter-spacing: 1px; }
 
-        .section { padding: 40px 5%; text-align: center; }
+        .section { padding: 50px 5%; text-align: center; }
         .section-title { 
             color: var(--primary); 
-            margin-bottom: 25px; 
-            font-size: 2rem; 
+            margin-bottom: 30px; 
+            font-size: 2.2rem; 
+            font-weight: 800;
             text-transform: uppercase; 
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            position: relative;
             display: inline-block;
         }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 4px;
+            background: var(--accent);
+            bottom: -10px;
+            left: 25%;
+            border-radius: 2px;
+        }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 20px; }
         
-        /* Modern Glass Cards */
+        /* Premium Card Style */
         .card { 
-            padding: 20px; 
-            border-radius: 15px; 
+            padding: 25px; 
+            border-radius: 20px; 
             background: var(--glass); 
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
-            transition: 0.4s;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
         }
         .card:hover { 
-            transform: translateY(-10px); 
+            transform: translateY(-12px); 
             background: white;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15); 
+            box-shadow: 0 15px 45px rgba(45, 90, 39, 0.15); 
         }
-        .card i { font-size: 2.2rem; color: var(--primary); margin-bottom: 15px; }
-        .card h3 { color: var(--secondary); margin-bottom: 8px; font-size: 1.2rem; }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 20px; }
+        .card h3 { color: var(--secondary); margin-bottom: 10px; font-size: 1.3rem; }
 
+        /* Contact Section */
+        .contact-container {
+            background: var(--white);
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+        .contact-text {
+            font-size: 1.15rem;
+            color: var(--secondary);
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
         .btn-email { 
             display: inline-block; 
-            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            background: linear-gradient(135deg, var(--primary), #3d7a35); 
             color: white; 
-            padding: 12px 30px; 
+            padding: 18px 45px; 
             border-radius: 50px; 
             text-decoration: none; 
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 1.1rem;
+            box-shadow: 0 8px 25px rgba(45, 90, 39, 0.3);
+            transition: 0.3s;
         }
+        .btn-email:hover { transform: scale(1.05); box-shadow: 0 12px 30px rgba(45, 90, 39, 0.4); }
 
-        footer { background: var(--secondary); color: white; padding: 40px 10%; text-align: center; }
-        .footer-links a { color: var(--accent); text-decoration: none; margin: 0 10px; font-weight: 600; }
+        footer { background: var(--secondary); color: white; padding: 50px 10%; text-align: center; margin-top: 40px; }
+        .footer-links { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
+        .footer-links a { color: #fbc02d; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="logo-area"><img src="logo1.jpg" alt="Agri-Link Logo"></div>
-    <div style="font-weight: bold; color: var(--primary); font-size: 0.9rem;">AGRI-LINK FINANCIAL SOLUTIONS</div>
+    <div style="font-weight: 900; color: var(--primary); letter-spacing: 2px;">OFFICIAL PORTAL</div>
 </nav>
 
 <section class="hero">
     <h1>Our Mission</h1>
-    <p>Empowering communities and fostering economic growth through accessible financial solutions and sustainable agricultural support.</p>
+    <p style="font-size: 1.3rem; max-width: 850px; margin: 0 auto; opacity: 0.9;">Empowering communities and fostering economic growth through accessible financial solutions and sustainable agricultural support.</p>
 </section>
 
 <section class="section">
     <h2 class="section-title">Core Values</h2>
     <div class="grid">
-        <div class="card"><i class="fas fa-fist-raised"></i><h3>Empowerment</h3><p>Providing resources that enable community growth.</p></div>
-        <div class="card"><i class="fas fa-handshake"></i><h3>Integrity</h3><p>Transparency and honesty in all financial dealings.</p></div>
-        <div class="card"><i class="fas fa-user-check"></i><h3>Customer-Centric</h3><p>Focusing on the needs of our farmers and clients.</p></div>
-        <div class="card"><i class="fas fa-seedling"></i><h3>Sustainability</h3><p>Supporting food security and environmental care.</p></div>
-        <div class="card"><i class="fas fa-users"></i><h3>Partnership</h3><p>Building networks to enhance economic opportunities.</p></div>
-        <div class="card"><i class="fas fa-lightbulb"></i><h3>Innovation</h3><p>Adopting modern technology for better agriculture.</p></div>
+        <div class="card"><i class="fas fa-fist-raised"></i><h3>Empowerment</h3><p>Resources that enable individual and community growth.</p></div>
+        <div class="card"><i class="fas fa-balance-scale"></i><h3>Integrity</h3><p>Uncompromising transparency in all financial dealings.</p></div>
+        <div class="card"><i class="fas fa-user-friends"></i><h3>Customer-Centric</h3><p>Your success is the heartbeat of our operations.</p></div>
+        <div class="card"><i class="fas fa-leaf"></i><h3>Sustainability</h3><p>Committed to food security and environmental health.</p></div>
+        <div class="card"><i class="fas fa-handshake"></i><h3>Partnership</h3><p>Building local and global networks for opportunity.</p></div>
+        <div class="card"><i class="fas fa-microchip"></i><h3>Innovation</h3><p>Modern financial tech for traditional agricultural roots.</p></div>
     </div>
 </section>
 
-<section class="section">
+<section class="section" style="background: rgba(45, 90, 39, 0.03);">
     <h2 class="section-title">Our Services</h2>
     <div class="grid">
-        <div class="card"><i class="fas fa-tractor"></i><h3>Agricultural Loans</h3><p>Funding for seeds and farm equipment.</p></div>
-        <div class="card"><i class="fas fa-briefcase"></i><h3>Employee Loans</h3><p>Support for civil servants and private sector.</p></div>
-        <div class="card"><i class="fas fa-store"></i><h3>Business Loans</h3><p>Capital for entrepreneurial ventures.</p></div>
-        <div class="card"><i class="fas fa-truck-loading"></i><h3>Produce Trading</h3><p>Facilitating fair trade and market access.</p></div>
+        <div class="card"><i class="fas fa-tractor"></i><h3>Agricultural Loans</h3><p>Essential funding for seeds, tools, and fertilizers.</p></div>
+        <div class="card"><i class="fas fa-user-tie"></i><h3>Employee Loans</h3><p>Fast financial support for salary earners.</p></div>
+        <div class="card"><i class="fas fa-store-alt"></i><h3>Business Loans</h3><p>Growth capital for emerging entrepreneurs.</p></div>
+        <div class="card"><i class="fas fa-truck"></i><h3>Produce Trading</h3><p>Direct market links for fair crop pricing.</p></div>
     </div>
 </section>
 
 <section class="section">
-    <a href="mailto:chisomohaswell@gmail.com?subject=Agri-Link Inquiry" class="btn-email">
-        <i class="fas fa-envelope"></i> Request Information
-    </a>
+    <div class="contact-container">
+        <p class="contact-text">Interested in our services or partnerships? Click below to send us an inquiry.</p>
+        <a href="mailto:chisomohaswell@gmail.com?subject=Agri-Link Inquiry" class="btn-email">
+            <i class="fas fa-paper-plane"></i> Request Information
+        </a>
+    </div>
 </section>
 
 <footer>
     <p>&copy; 2026 Agri-Link Financial Solutions. All Rights Reserved.</p>
     <div class="footer-links">
-        <a href="apply.html"><i class="fas fa-file-invoice-dollar"></i> Borrower Portal</a>
-        <a href="admin.html"><i class="fas fa-lock"></i> Staff Login</a>
+        <a href="apply.html"><i class="fas fa-file-signature"></i> Borrower Portal</a>
+        <a href="admin.html"><i class="fas fa-user-shield"></i> Staff Secure Login</a>
     </div>
 </footer>
 
