@@ -101,6 +101,36 @@
         Total Collateral Value: <span id="display_total">0</span> MWK
     </div>
 
+ <div style="margin-top: 30px;">
+        <button type="button" id="calc-toggle-btn" onclick="toggleCalc()" style="width: 100%; background: #f0f0f0; border: 1px solid #ccc; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #333;">
+            🧮 Use Repayment Planner (20% Interest)
+        </button>
+
+        <div id="calcContent" style="display: none; margin-top: 15px; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 10px;">
+            <label>Confirm Loan Amount (MWK):</label>
+            <input type="number" id="calcAmt" placeholder="e.g. 50000">
+            
+            <label>Period (Months):</label>
+            <select id="calcPeriod">
+                <option value="1">1 Month</option>
+                <option value="2">2 Months</option>
+                <option value="3">3 Months</option>
+                <option value="4">4 Months</option>
+                <option value="5">5 Months</option>
+                <option value="6">6 Months</option>
+                <option value="12">12 Months</option>
+            </select>
+
+            <button type="button" onclick="runCalculation()" style="width: 100%; background: #1e4d2b; color: white; border: none; padding: 12px; border-radius: 6px; margin-top: 15px; cursor: pointer; font-weight: bold;">Show Repayment Plan</button>
+
+            <div id="calcOutput" style="display: none; margin-top: 15px; background: #f9f9f9; padding: 15px; border-radius: 6px;">
+                <p>Monthly Payment: <strong id="mPay" style="float: right;">0 MWK</strong></p>
+                <p>Total Interest (20%): <strong id="tInt" style="float: right; color: #d9534f;">0 MWK</strong></p>
+                <hr>
+                <p><strong>Total to Repay:</strong> <strong id="tRepay" style="float: right; color: #1e4d2b;">0 MWK</strong></p>
+            </div>
+        </div>
+    </div>   
     <div class="section-header">3. Terms & Conditions</div>
     <div class="terms-box">
         <p><strong>By checking the box below, I, the borrower acknowledges:</strong></p>
