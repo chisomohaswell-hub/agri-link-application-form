@@ -6,37 +6,66 @@
     <title>Agri-Link Financial Solutions | Official Home</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2d5a27; --secondary: #1a3d5a; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); line-height: 1.6; }
+        :root {
+            --primary: #2d5a27;
+            --secondary: #1a3d5a;
+            --accent: #4caf50;
+            --light: #f4f7f6;
+            --white: #ffffff;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; color: #333; background: var(--light); line-height: 1.6; }
         
-        nav { background: white; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; }
-        .logo-area img { height: 60px; }
+        nav { background: var(--white); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .logo-area { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--primary); font-weight: bold; font-size: 1.2rem; }
+        .logo-area img { height: 50px; }
 
-        .hero { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&q=80&w=2000'); 
-                padding: 120px 10%; text-align: center; color: white; }
-        .hero h1 { font-size: 3rem; margin-bottom: 20px; }
+        /* Hero Section - Matching the Poster Header */
+        .hero { 
+            background: linear-gradient(rgba(45, 90, 39, 0.85), rgba(26, 61, 90, 0.85)), url('https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&q=80&w=2000'); 
+            background-size: cover; background-position: center; color: var(--white); padding: 100px 10%; text-align: center;
+        }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .hero p { font-size: 1.25rem; max-width: 800px; margin: 0 auto; font-style: italic; }
 
-        .section { padding: 80px 10%; text-align: center; background: white; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px; }
+        .section { padding: 60px 10%; text-align: center; }
+        .bg-white { background: var(--white); }
+        h2.section-title { color: var(--primary); font-size: 2rem; margin-bottom: 40px; position: relative; padding-bottom: 10px; }
+        h2.section-title::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: var(--accent); }
+
+        /* Values Grid - 6 Cards from Poster */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .value-card { background: var(--white); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--primary); transition: 0.3s; }
+        .value-card:hover { transform: translateY(-5px); }
+        .value-card i { font-size: 2.5rem; color: var(--accent); margin-bottom: 15px; }
+        .value-card h3 { color: var(--secondary); margin-bottom: 10px; font-size: 1.4rem; }
+
+        /* Services Section with Imagery */
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .service-card { position: relative; overflow: hidden; border-radius: 10px; height: 250px; color: white; display: flex; align-items: flex-end; text-align: left; text-decoration: none; }
+        .service-card .overlay { background: linear-gradient(transparent, rgba(0,0,0,0.8)); width: 100%; padding: 20px; }
+        .service-card h4 { margin: 0; font-size: 1.2rem; }
         
-        .card { padding: 30px; border-radius: 10px; background: var(--light); border-top: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
-        .card h3 { color: var(--secondary); margin-bottom: 10px; }
+        /* Custom Images for Services */
+        .s1 { background: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&q=80&w=600') center/cover; }
+        .s2 { background: url('https://images.unsplash.com/photo-1454165833767-027ffea9e787?auto=format&fit=crop&q=80&w=600') center/cover; }
+        .s3 { background: url('https://images.unsplash.com/photo-1556742044-3c52d6e88c62?auto=format&fit=crop&q=80&w=600') center/cover; }
+        /* Farm Produce Trading - Specifically showing bags/truck theme */
+        .s4 { background: url('https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&q=80&w=600') center/cover; }
 
-        .contact-box { max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        .btn-email { display: inline-block; background: var(--primary); color: white; padding: 15px 35px; border-radius: 5px; text-decoration: none; font-weight: bold; }
-
-        footer { background: var(--secondary); color: white; padding: 50px 10%; text-align: center; }
-        .footer-links { margin-top: 20px; }
-        .footer-links a { color: #ccc; margin: 0 15px; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid transparent; }
-        .footer-links a:hover { color: white; border-bottom: 1px solid white; }
+        footer { background: var(--secondary); color: var(--white); padding: 40px 10%; text-align: center; }
+        .footer-links { margin-top: 20px; display: flex; justify-content: center; gap: 30px; }
+        .footer-links a { color: #fff; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; opacity: 0.8; }
+        .footer-links a:hover { opacity: 1; color: var(--accent); }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="logo-area"><img src="logo1.jpg" alt="Agri-Link Logo"></div>
-    <div style="font-weight: bold; color: var(--primary);">Official Website</div>
+    <a href="#" class="logo-area">
+        <img src="logo1.jpg" alt="Agri-Link Logo">
+        <span>Agri-Link Financial Solutions</span>
+    </a>
 </nav>
 
 <section class="hero">
@@ -44,34 +73,25 @@
     <p>Empowering communities and fostering economic growth through accessible financial solutions and sustainable agricultural support.</p>
 </section>
 
-<section class="section">
-    <h2 style="color:var(--primary)">Our Core Values</h2>
+<section class="section bg-white">
+    <h2 class="section-title">Our Core Values</h2>
     <div class="grid">
-        <div class="card">
-            <i class="fas fa-fist-raised"></i>
-            <h3>Empowerment</h3>
-            <p>Enabling growth through financial resources for individuals and communities.</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>Integrity</h3>
-            <p>Transparency and honesty in all our interactions.</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-leaf"></i>
-            <h3>Sustainability</h3>
-            <p>Supporting environmental preservation and food security.</p>
-        </div>
+        <div class="value-card"><i class="fas fa-fist-raised"></i><h3>Empowerment</h3><p>Fostering development for individuals and communities.</p></div>
+        <div class="value-card"><i class="fas fa-balance-scale"></i><h3>Integrity</h3><p>Transparency and honesty in all our interactions.</p></div>
+        <div class="value-card"><i class="fas fa-user-friends"></i><h3>Customer-Centric</h3><p>Putting the needs of our clients at the heart of everything.</p></div>
+        <div class="value-card"><i class="fas fa-leaf"></i><h3>Sustainability</h3><p>Contributing to food security and environmental care.</p></div>
+        <div class="value-card"><i class="fas fa-handshake"></i><h3>Partnership</h3><p>Building strong networks for economic opportunities.</p></div>
+        <div class="value-card"><i class="fas fa-lightbulb"></i><h3>Innovation</h3><p>Applying modern solutions to traditional challenges.</p></div>
     </div>
 </section>
 
-<section id="contact" class="section bg-white" style="background:#f4f7f6;">
-    <h2>Contact Us</h2>
-    <div class="contact-box">
-        <p>Interested in our services or partnerships? Click below to send us an inquiry.</p>
-        <a href="mailto:chisomohaswell@gmail.com?subject=Agri-Link Inquiry" class="btn-email">
-            <i class="fas fa-envelope"></i> Request Information
-        </a>
+<section class="section">
+    <h2 class="section-title">Our Services</h2>
+    <div class="services-grid">
+        <div class="service-card s1"><div class="overlay"><h4>Agricultural Loans</h4></div></div>
+        <div class="service-card s2"><div class="overlay"><h4>Employee Loans</h4></div></div>
+        <div class="service-card s3"><div class="overlay"><h4>Business Loans</h4></div></div>
+        <div class="service-card s4"><div class="overlay"><h4>Farm Produce Trading</h4></div></div>
     </div>
 </section>
 
