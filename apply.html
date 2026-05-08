@@ -3,103 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agri-Link Financial Solutions | Empowering Growth</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Agri-Link | Loan Agreement</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <style>
-        :root { --primary: #2d5a27; --secondary: #1a3d5a; --accent: #4caf50; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; color: #333; background: var(--light); line-height: 1.6; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 750px; margin: auto; border-top: 10px solid #24b47e; }
+        .instruction-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 15px; margin-bottom: 25px; border-radius: 4px; font-size: 0.95em; line-height: 1.5; }
+        .form-title { text-align: center; font-size: 1.5em; font-weight: bold; margin-bottom: 25px; color: #1e4d2b; text-decoration: underline; }
+        .section-header { background: #e8f5e9; padding: 12px; margin-top: 30px; border-radius: 6px; color: #1e4d2b; font-weight: bold; border-left: 5px solid #24b47e; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         
-        nav { background: white; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
-        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--primary); font-weight: bold; }
-        .logo-area img { height: 60px; }
-
-        .hero { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&q=80&w=2000'); 
-                background-size: cover; background-position: center; color: white; padding: 120px 10%; text-align: center; }
-        .hero h1 { font-size: 3rem; margin-bottom: 20px; }
-        .hero p { font-size: 1.3rem; max-width: 900px; margin: 0 auto; }
-
-        .section { padding: 80px 10%; text-align: center; }
-        .bg-white { background: white; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px; }
+        /* Layout for Collateral: Wide Description, Narrow Value */
+        .collateral-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; margin-bottom: 10px; }
         
-        .card { padding: 30px; border-radius: 10px; background: var(--light); transition: 0.3s; border-top: 5px solid var(--primary); }
-        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
-        .card h3 { color: var(--secondary); margin-bottom: 10px; }
+        .sig-container { border: 1px dashed #24b47e; background: #fafafa; margin-top: 10px; border-radius: 6px; width: 100%; }
+        canvas { width: 100%; height: 160px; cursor: crosshair; touch-action: none; }
+        .clear-btn { background: #f0f0f0; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 0.8em; }
+        .terms-box { background: #fff9e6; padding: 20px; border: 1px solid #ffe58f; border-radius: 6px; margin-top: 15px; font-size: 0.95em; line-height: 1.6; }
+        .total-box { background: #e8f5e9; padding: 15px; border-radius: 6px; margin-top: 10px; font-weight: bold; color: #1e4d2b; text-align: right; border: 1px solid #24b47e; }
+        .submit-btn, .print-btn { width: 100%; padding: 20px; color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .submit-btn { background-color: #24b47e; margin-top: 40px; }
+        .print-btn { background-color: #2c3e50; display: none; }
+        .submit-btn:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.7; }
+        #status { text-align: center; margin-top: 20px; font-weight: bold; }
 
-        .contact-box { max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        .btn-email { display: inline-block; background: var(--primary); color: white; padding: 15px 35px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
-        .btn-email:hover { background: #1e3d1a; transform: translateY(-2px); }
-
-        footer { background: var(--secondary); color: white; padding: 40px 10%; text-align: center; }
-        .footer-links a { color: #ccc; margin: 0 15px; text-decoration: none; font-size: 0.85rem; }
+        @media print {
+            body { background-color: white; padding: 0; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
+            .submit-btn, .print-btn, .clear-btn, #status, #terms-check-container, .instruction-box { display: none !important; }
+            .sig-container { border: 1px solid #eee; }
+            .section-header { border-bottom: 2px solid #24b47e; background: none; padding-left: 0; }
+            input { border: none; border-bottom: 1px solid #eee; }
+        }
     </style>
 </head>
 <body>
 
-<nav>
-    <a href="#" class="logo-area">
-        <img src="logo1.jpg" alt="Agri-Link Logo">
-        <span>Agri-Link Financial Solutions</span>
-    </a>
-</nav>
+<div class="container">
+    <header style="text-align: center; margin-bottom: 5px;">
+        <img src="logo1.jpg" alt="Agri-Link Logo" style="max-width: 280px; width: 90%; height: auto;">
+    </header>
 
-<section class="hero">
-    <h1>Our Mission</h1>
-    <p>Empowering communities and fostering economic growth through accessible financial solutions and sustainable agricultural support.</p>
-</section>
-
-<section class="section bg-white">
-    <h2 style="color:var(--primary);">Our Core Values</h2>
-    <div class="grid">
-        <div class="card">
-            <i class="fas fa-fist-raised"></i>
-            <h3>Empowerment</h3>
-            <p>Providing financial resources that enable growth and development for individuals and communities.</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>Integrity</h3>
-            <p>Ensuring transparency and honesty in all our interactions with unwavering integrity.</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-leaf"></i>
-            <h3>Sustainability</h3>
-            <p>Contributing to food security and environmental preservation through sustainable practices.</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-users"></i>
-            <h3>Partnership</h3>
-            <p>Building strong networks to enhance economic opportunities for all stakeholders.</p>
-        </div>
+    <div class="instruction-box">
+        <strong>Welcome to Agri-Link Online!</strong><br>
+        Please fill out this digital form. <strong>Note:</strong> Be specific in the collateral description (include Serial Numbers or identifying marks). After submitting, click <strong>'Print Agreement'</strong> to save the PDF.
     </div>
-</section>
 
-<section class="section">
-    <h2 style="color:var(--primary);">Our Services</h2>
-    <div class="grid">
-        <div class="card"><h3>Agricultural Loans</h3><p>Invest in seeds, fertilizers, and equipment to boost productivity.</p></div>
-        <div class="card"><h3>Employee Loans</h3><p>Financial support for government, company, and NGO workers.</p></div>
-        <div class="card"><h3>Business Loans</h3><p>For entrepreneurs looking to expand and manage working capital.</p></div>
-        <div class="card"><h3>Farm Produce Trading</h3><p>Facilitating fair and profitable transactions for farmers.</p></div>
+    <div class="form-title">Online Loan Application Form</div>
+
+    <div class="section-header">1. Application & Customer Details</div>
+    
+    <label>Date of Application</label>
+    <input type="date" id="application_date">
+
+    <label>Full Name</label>
+    <input type="text" id="full_name">
+    
+    <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+        <div style="flex: 1;"><label>National ID</label><input type="text" id="id_number"></div>
+        <div style="flex: 1;"><label>Phone Number</label><input type="text" id="phone"></div>
     </div>
-</section>
 
-<section id="contact" class="section bg-white">
-    <h2>Contact Us</h2>
-    <div class="contact-box">
-        <p>Interested in our services or looking to partner with us? Click below to send us an inquiry.</p>
-        <a href="mailto:chisomohaswell@gmail.com?subject=Agri-Link Inquiry" class="btn-email">
-            <i class="fas fa-envelope"></i> Request Information
-        </a>
+    <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+        <div style="flex: 1;"><label>Village</label><input type="text" id="village"></div>
+        <div style="flex: 1;"><label>District</label><input type="text" id="district"></div>
     </div>
-</section>
 
-<footer>
-    <p>&copy; 2026 Agri-Link Financial Solutions. All Rights Reserved.</p>
-    <div class="footer-links">
-        <a href="admin.html"><i class="fas fa-lock"></i> Staff Secure Portal</a>
+    <label>Home Address/House Number</label>
+    <input type="text" id="borrower_address">
+
+    <div class="section-header">2. Loan Terms & Collateral Assets</div>
+    <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+        <div style="flex: 1;"><label>Amount Requested (MWK)</label><input type="number" id="amount"></div>
+        <div style="flex: 1;"><label>Interest (%)</label><input type="number" id="interest_rate" value="5"></div>
     </div>
-</footer>
+    <label>Repayment Period (Months)</label>
+    <input type="number" id="repayment_months">
 
+    <p style="margin-top: 15px; font-weight: bold; color: #1e4d2b;">Collateral Assets (Provide Detailed Descriptions)</p>
+    
+    <div class="collateral-grid">
+        <input type="text" id="col1_desc" placeholder="Item 1: Model, Serial No, Color, etc.">
+        <input type="number" id="col1_val" placeholder="Value (MWK)" oninput="calculateTotal()">
+    </div>
+    <div class="collateral-grid">
+        <input type="text" id="col2_desc" placeholder="Item 2: Brand, Condition, Quantity">
+        <input type="number" id="col2_val" placeholder="Value (MWK)" oninput="calculateTotal()">
+    </div>
+    <div class="collateral-grid">
+        <input type="text" id="col3_desc" placeholder="Item 3: Detailed Description">
+        <input type="number" id="col3_val" placeholder="Value (MWK)" oninput="calculateTotal()">
+    </div>
+    
+    <div class="total-box">
+        Total Collateral Value: <span id="display_total">0</span> MWK
+    </div>
+
+    <div class="section-header">3. Terms & Conditions</div>
+    <div class="terms-box">
+        <p><strong>By checking the box below, I, the borrower acknowledges:</strong></p>
+        <ul style="padding-left: 20px;">
+            <li>A non-refundable processing fee of <strong>4.5%</strong> applies.</li>
+            <li>A daily late fee of <strong>0.5% of the total amount taken</strong> for any delayed repayments.</li>
+            <li>The stated collateral will be used for recovery in case of default.</li>
+            <li>Interest is calculated monthly as stated in Section 2.</li>
+        </ul>
+        <label id="terms-check-container" style="display: flex; align-items: center; cursor: pointer; margin-top: 15px;">
+            <input type="checkbox" id="terms_check" onchange="toggleSubmit()" style="width:20px; margin-right:10px;">
+            <span style="font-weight: bold;">I agree to the Agri-Link Loan Terms.</span>
+        </label>
+    </div>
+
+    <div class="section-header">4. Signatures and Witnesses Details</div>
+    
+    <div style="margin-bottom: 30px;">
+        <label>Customer Signature</label>
+        <div class="sig-container"><canvas id="sig-borrower"></canvas></div>
+        <button class="clear-btn" onclick="padBorrower.clear()">Clear</button>
+    </div>
+
+    <div style="margin-bottom: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <p style="font-weight: bold; color: #24b47e;">First Witness Details</p>
+        <input type="text" id="witness1_name" placeholder="Full Name">
+        <input type="text" id="witness1_address" placeholder="Residential Address" style="margin-top:5px;">
+        <input type="text" id="witness1_phone" placeholder="Phone Number" style="margin-top:5px;">
+        <label style="margin-top: 10px;">First Witness Signature</label>
+        <div class="sig-container"><canvas id="sig-w1"></canvas></div>
+        <button class="clear-btn" onclick="padW1.clear()">Clear</button>
+    </div>
+
+    <div style="margin-bottom: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <p style="font-weight: bold; color: #24b47e;">Second Witness Details</p>
+        <input type="text" id="witness2_name" placeholder="Full Name">
+        <input type="text" id="witness2_address" placeholder="Residential Address" style="margin-top:5px;">
+        <input type="text" id="witness2_phone" placeholder="Phone Number" style="margin-top:5px;">
+        <label style="margin-top: 10px;">Second Witness Signature</label>
+        <div class="sig-container"><canvas id="sig-w2"></canvas></div>
+        <button class="clear-btn" onclick="padW2.clear()">Clear</button>
+    </div>
+
+    <!-- NEW SECTION 5: ACCOUNT DETAILS -->
+    <div class="section-header">5. Official Repayment Details</div>
+    <div class="repayment-box">
+        <p><strong>Please make all loan repayments to:</strong></p>
+        <p><strong>Bank Name:</strong> National Bank</p>
+        <p><strong>Account Name:</strong> Agri-Link Financial Solutions</p>
+        <p><strong>Account Number:</strong> 1003491311</p>
+        <p style="font-size: 0.85em; color: #555; margin-top: 10px;">*Please use your Full Name as the payment reference.</p>
+    </div>
+
+    <button class="submit-btn" id="submit_button" onclick="submitForm()" disabled>Submit Full Agreement</button>
+    <button class="print-btn" id="print_button" onclick="window.print()">Print Agreement (Save as PDF)</button>
+    <div id="status"></div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://hzfmqewyzrbiyrobrutb.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oD7WVko3sBDT0Aw9WSM8lg_JmApl3tQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    document.getElementById('application_date').valueAsDate = new Date();
+
+    const padBorrower = new SignaturePad(document.getElementById('sig-borrower'));
+    const padW1 = new SignaturePad(document.getElementById('sig-w1'));
+    const padW2 = new SignaturePad(document.getElementById('sig-w2'));
+
+    function calculateTotal() {
+        const v1 = Number(document.getElementById('col1_val').value) || 0;
+        const v2 = Number(document.getElementById('col2_val').value) || 0;
+        const v3 = Number(document.getElementById('col3_val').value) || 0;
+        document.getElementById('display_total').innerText = (v1 + v2 + v3).toLocaleString();
+    }
+
+    function toggleSubmit() {
+        document.getElementById('submit_button').disabled = !document.getElementById('terms_check').checked;
+    }
+
+    async function submitForm() {
+        const status = document.getElementById('status');
+        const printBtn = document.getElementById('print_button');
+        status.innerText = "Processing Agreement...";
+
+        const combinedCollateral = `1: ${document.getElementById('col1_desc').value} (${document.getElementById('col1_val').value} MWK) | 2: ${document.getElementById('col2_desc').value} (${document.getElementById('col2_val').value} MWK) | 3: ${document.getElementById('col3_desc').value} (${document.getElementById('col3_val').value} MWK)`;
+        
+        const totalValue = (Number(document.getElementById('col1_val').value) || 0) + (Number(document.getElementById('col2_val').value) || 0) + (Number(document.getElementById('col3_val').value) || 0);
+
+        const { error } = await supabaseClient.from('borrowers').insert([{
+            application_date: document.getElementById('application_date').value,
+            full_name: document.getElementById('full_name').value,
+            id_number: document.getElementById('id_number').value,
+            phone: document.getElementById('phone').value,
+            village: document.getElementById('village').value,
+            district: document.getElementById('district').value,
+            borrower_address: document.getElementById('borrower_address').value,
+            signature: padBorrower.toDataURL(),
+            amount: parseFloat(document.getElementById('amount').value),
+            interest_rate: parseFloat(document.getElementById('interest_rate').value),
+            repayment_months: parseInt(document.getElementById('repayment_months').value),
+            collateral_type: combinedCollateral,
+            collateral_value: totalValue,
+            witness1_name: document.getElementById('witness1_name').value,
+            witness1_address: document.getElementById('witness1_address').value,
+            witness1_phone: document.getElementById('witness1_phone').value,
+            witness1_signature: padW1.toDataURL(),
+            witness2_name: document.getElementById('witness2_name').value,
+            witness2_address: document.getElementById('witness2_address').value,
+            witness2_phone: document.getElementById('witness2_phone').value,
+            witness2_signature: padW2.toDataURL()
+        }]);
+
+        if (error) {
+            status.innerText = "Error: " + error.message;
+        } else {
+            status.innerText = "✅ Agreement Saved Successfully!";
+            printBtn.style.display = "block";
+            document.getElementById('submit_button').style.display = "none";
+        }
+    }
+</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
