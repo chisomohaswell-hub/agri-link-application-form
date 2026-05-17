@@ -27,13 +27,13 @@
         .btn-logout { background: #666; width: auto; padding: 8px 15px; }
         .btn-login { width: 100%; margin-top: 10px; }
 
-        /* Custom Interactive View Button */
         .btn-view { background: #2d5a27; color: white; border-radius: 4px; padding: 5px 10px; width: auto; font-size: 0.9em; display: inline-block; }
+        .btn-statement { background: #1a3d5a; width: auto; padding: 6px 12px; font-size: 0.85em; margin-bottom: 10px; float: right; margin-top: -5px; }
 
         /* MODAL WINDOW FOR REPAYMENT AND PROFILE DATA */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; }
         .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 8px; max-width: 750px; width: 90%; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
-        .close { float: right; font-size: 24px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .close { float: right; font-size: 24px; font-weight: bold; cursor: pointer; color: #aaa; margin-left: 15px; }
         .close:hover { color: black; }
         
         /* Financial Metrics Grid Layout */
@@ -48,9 +48,12 @@
         .inline-inputs input, .inline-inputs select { flex: 1; min-width: 130px; margin: 0; padding: 8px; }
         .btn-log-pay { width: auto; padding: 8px 16px; background: #2d5a27; }
 
-        .sub-table { min-width: 100%; font-size: 0.9em; margin-top: 10px; box-shadow: none; border: 1px solid #eee; }
-        .sub-table th { background: #444; padding: 6px; }
-        .sub-table td { padding: 6px; }
+        .sub-table { min-width: 100%; font-size: 0.9em; margin-top: 10px; box-shadow: none; border: 1px solid #eee; border-collapse: collapse; }
+        .sub-table th { background: #444; padding: 6px; color: white; text-align: left; }
+        .sub-table td { padding: 6px; border-bottom: 1px solid #eee; }
+
+        /* Styling for Statement Logo Layout */
+        .statement-logo { width: 70px; height: auto; object-fit: contain; }
     </style>
 </head>
 <body>
@@ -106,36 +109,75 @@
 <div id="ledgerModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <h3 id="m-name" style="color: #2d5a27; margin-top: 0; margin-bottom: 15px;">Borrower File</h3>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85em; background: #fafafa; padding: 10px; border-radius: 4px;">
-            <div><strong>National ID:</strong> <span id="m-id"></span></div>
-            <div><strong>Contact Line:</strong> <span id="m-phone"></span></div>
-            <div><strong>Location/Village:</strong> <span id="m-location"></span></div>
-            <div><strong>Home Address:</strong> <span id="m-address"></span></div>
+        <button class="btn-statement" onclick="downloadSingleStatement()">
+            <i class="fas fa-file-invoice-dollar"></i> Download Statement PDF
+        </button>
+
+        <div id="print-area">
+            <div id="pdf-brand-header" style="display:none; margin-bottom: 25px; border-bottom: 3px solid #2d5a27; padding-bottom: 15px;">
+                <table style="width: 100%; min-width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 80px; padding: 0; border: none; vertical-align: middle;">
+                            <img src="logo1.jpg" alt="Agri-Link Corporate Logo" class="statement-logo">
+                        </td>
+                        <td style="padding-left: 15px; border: none; vertical-align: middle; text-align: left;">
+                            <h2 style="color: #2d5a27; margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;">AGRI-LINK FINANCIAL SOLUTIONS</h2>
+                            <p style="margin: 4px 0 0 0; color: #555; font-size: 13px; font-weight: 500; font-style: italic;">Inua Mkulima, Jenga Tsogolo | Official Loan Statement</p>
+                        </td>
+                        <td style="padding: 0; border: none; vertical-align: bottom; text-align: right; color: #888; font-size: 11px;">
+                            <strong>Issued On:</strong><br><span id="pdf-gen-date"></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3 id="m-name" style="color: #2d5a27; margin-top: 0; margin-bottom: 15px;">Borrower File</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85em; background: #fafafa; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
+                <div><strong>National ID:</strong> <span id="m-id"></span></div>
+                <div><strong>Contact Line:</strong> <span id="m-phone"></span></div>
+                <div><strong>Location/Village:</strong> <span id="m-location"></span></div>
+                <div><strong>Home Address:</strong> <span id="m-address"></span></div>
+            </div>
+
+            <h4 style="color: #2d5a27; margin-top: 20px; margin-bottom: 5px; border-bottom: 2px solid #2d5a27; padding-bottom: 3px;">Loan Balances</h4>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Total Expected</h4>
+                    <p id="card-expected">0 MWK</p>
+                </div>
+                <div class="metric-card">
+                    <h4>Total Settled</h4>
+                    <p id="card-paid" style="color: #2b7a1a;">0 MWK</p>
+                </div>
+                <div class="metric-card">
+                    <h4>Balance Due</h4>
+                    <p id="card-balance" style="color: #b81d1d;">0 MWK</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; background: #edf4ee; padding: 8px; font-size: 0.9em; font-weight: 500; border-radius: 4px; color: #2d5a27; margin-bottom: 15px;">
+                📌 Installment Schedule: <span id="m-schedule-term" style="font-weight: bold;"></span>
+            </div>
+
+            <h4 style="color: #2d5a27; margin-top: 25px; margin-bottom: 5px;">Transaction History Statements</h4>
+            <div style="overflow-x: auto;">
+                <table class="sub-table" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Date Processed</th>
+                            <th>Amount Received</th>
+                            <th>Method</th>
+                            <th>Reference Code</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payment-history-rows"></tbody>
+                </table>
+            </div>
         </div>
 
-        <h4 style="color: #2d5a27; margin-top: 20px; margin-bottom: 5px; border-bottom: 2px solid #2d5a27; padding-bottom: 3px;">Loan Balances</h4>
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <h4>Total Expected</h4>
-                <p id="card-expected">0 MWK</p>
-            </div>
-            <div class="metric-card">
-                <h4>Total Settled</h4>
-                <p id="card-paid" style="color: #2b7a1a;">0 MWK</p>
-            </div>
-            <div class="metric-card">
-                <h4>Balance Due</h4>
-                <p id="card-balance" style="color: #b81d1d;">0 MWK</p>
-            </div>
-        </div>
-        
-        <div style="text-align: center; background: #edf4ee; padding: 8px; font-size: 0.9em; font-weight: 500; border-radius: 4px; color: #2d5a27; margin-bottom: 15px;">
-            📌 Installment Schedule: <span id="m-schedule-term" style="font-weight: bold;"></span>
-        </div>
-
-        <div class="ledger-form">
+        <div class="ledger-form" id="input-form-box">
             <h4 style="margin: 0; color: #2d5a27; font-size: 0.95em;"><i class="fas fa-plus-circle"></i> Log Repayment Transaction</h4>
             <div class="inline-inputs">
                 <input type="number" id="pay-amount" placeholder="Amount Paid (MWK)" required>
@@ -152,20 +194,6 @@
             <div id="pay-status-message" style="margin-top: 8px; font-size: 0.85em; font-weight: bold;"></div>
         </div>
 
-        <h4 style="color: #2d5a27; margin-top: 25px; margin-bottom: 5px;">Transaction History Statements</h4>
-        <div style="overflow-x: auto;">
-            <table class="sub-table">
-                <thead>
-                    <tr>
-                        <th>Date Processed</th>
-                        <th>Amount Received</th>
-                        <th>Method</th>
-                        <th>Reference Code</th>
-                    </tr>
-                </thead>
-                <tbody id="payment-history-rows"></tbody>
-            </table>
-        </div>
     </div>
 </div>
 
@@ -177,7 +205,6 @@
     let activeBorrowerId = null;
     let activeBorrowerObject = null;
 
-    // Check persistent storage authorization status on setup load
     window.onload = async function() {
         document.getElementById('pay-date').valueAsDate = new Date();
         const { data: { session } } = await _supabase.auth.getSession();
@@ -240,7 +267,6 @@
         `).join('');
     }
 
-    // Modal Calculation adjusted to handle the 20% flat monthly interest rule scale
     async function openLedger(id) {
         activeBorrowerId = id;
         document.getElementById('pay-status-message').innerText = "";
@@ -257,9 +283,8 @@
         document.getElementById('m-location').innerText = `${b.village || 'N/A'}, ${b.district || ''}`;
         document.getElementById('m-address').innerText = b.borrower_address || 'N/A';
 
-        // 20% Monthly Interest Equation Configuration 
         const principal = Number(b.amount) || 0;
-        const interestRate = (Number(b.interest_rate) || 20) / 100; // Corrected to 20%
+        const interestRate = (Number(b.interest_rate) || 20) / 100; 
         const months = Number(b.repayment_months) || 1;
 
         const totalInterest = principal * interestRate * months;
@@ -347,6 +372,28 @@
             
             await loadRepaymentsLog(activeBorrowerId, totalExpected);
         }
+    }
+
+    function downloadSingleStatement() {
+        const element = document.getElementById('print-area');
+        const headerBrand = document.getElementById('pdf-brand-header');
+        
+        document.getElementById('pdf-gen-date').innerText = new Date().toLocaleString();
+        headerBrand.style.display = 'block';
+
+        const borrowerName = activeBorrowerObject ? activeBorrowerObject.full_name.replace(/\s+/g, '_') : 'Client';
+        
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: `AgriLink_Statement_${borrowerName}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            headerBrand.style.display = 'none';
+        });
     }
 
     function closeModal() {
