@@ -177,7 +177,7 @@
     let activeBorrowerId = null;
     let activeBorrowerObject = null;
 
-    // Check auth session persistent storage state on load
+    // Check persistent storage authorization status on setup load
     window.onload = async function() {
         document.getElementById('pay-date').valueAsDate = new Date();
         const { data: { session } } = await _supabase.auth.getSession();
@@ -218,7 +218,7 @@
                     📞 ${row.phone || ''}
                 </td>
                 <td>${row.id_number || 'N/A'}</td>
-                <td>MWK ${Number(row.amount || 0).toLocaleString()}<br><small>${row.interest_rate || 5}% | ${row.repayment_months || 1} Mo</small></td>
+                <td>MWK ${Number(row.amount || 0).toLocaleString()}<br><small>${row.interest_rate || 20}% | ${row.repayment_months || 1} Mo</small></td>
                 <td><strong>${row.collateral_type || 'N/A'}</strong><br>Val: ${Number(row.collateral_value || 0).toLocaleString()}</td>
                 <td>${row.signature ? `<img src="${row.signature}" class="sig-img">` : 'N/A'}</td>
                 <td>
@@ -240,7 +240,7 @@
         `).join('');
     }
 
-    // Modal Interaction and Financial Ledger Calculation
+    // Modal Calculation adjusted to handle the 20% flat monthly interest rule scale
     async function openLedger(id) {
         activeBorrowerId = id;
         document.getElementById('pay-status-message').innerText = "";
@@ -251,16 +251,15 @@
         if (error || !b) return;
         activeBorrowerObject = b;
 
-        // Populate metadata info text
         document.getElementById('m-name').innerText = b.full_name;
         document.getElementById('m-id').innerText = b.id_number || 'N/A';
         document.getElementById('m-phone').innerText = b.phone || 'N/A';
         document.getElementById('m-location').innerText = `${b.village || 'N/A'}, ${b.district || ''}`;
         document.getElementById('m-address').innerText = b.borrower_address || 'N/A';
 
-        // Perform Loan Equation Calculations
+        // 20% Monthly Interest Equation Configuration 
         const principal = Number(b.amount) || 0;
-        const interestRate = (Number(b.interest_rate) || 20) / 100; // base default matching backend variables
+        const interestRate = (Number(b.interest_rate) || 20) / 100; // Corrected to 20%
         const months = Number(b.repayment_months) || 1;
 
         const totalInterest = principal * interestRate * months;
@@ -269,7 +268,6 @@
 
         document.getElementById('m-schedule-term').innerText = `${Math.round(monthlyInstallment).toLocaleString()} MWK / Month for ${months} Months`;
 
-        // Pull transaction data history logs from repayments table
         await loadRepaymentsLog(id, totalExpected);
 
         document.getElementById('ledgerModal').style.display = 'block';
@@ -303,13 +301,11 @@
 
         const remainingBalance = totalExpected - aggregatedPaid;
 
-        // Display updated summary dashboard metric values
         document.getElementById('card-expected').innerText = Math.round(totalExpected).toLocaleString() + " MWK";
         document.getElementById('card-paid').innerText = Math.round(aggregatedPaid).toLocaleString() + " MWK";
         document.getElementById('card-balance').innerText = Math.round(remainingBalance).toLocaleString() + " MWK";
     }
 
-    // Insert database entry record directly inside new repayments table
     async function savePayment() {
         const amt = parseFloat(document.getElementById('pay-amount').value);
         const date = document.getElementById('pay-date').value;
@@ -344,7 +340,6 @@
             document.getElementById('pay-amount').value = "";
             document.getElementById('pay-ref').value = "";
             
-            // Re-run matching principal logic calculations to refresh UI live metrics balances
             const principal = Number(activeBorrowerObject.amount) || 0;
             const interestRate = (Number(activeBorrowerObject.interest_rate) || 20) / 100;
             const months = Number(activeBorrowerObject.repayment_months) || 1;
@@ -364,13 +359,11 @@
     }
 
     function downloadCSV() {
-        // Targets active primary loan records table row data metrics matching historical exports
         const table = document.getElementById("loanTable");
         const rows = table.querySelectorAll("tr");
         let csv = [];
         for (let i = 0; i < rows.length; i++) {
             let row = [], cols = rows[i].querySelectorAll("td, th");
-            // Exclude last "Actions" column from data downloads
             const totalCols = cols.length > 10 ? cols.length - 1 : cols.length;
             for (let j = 0; j < totalCols; j++) {
                 let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/,/g, ";");
