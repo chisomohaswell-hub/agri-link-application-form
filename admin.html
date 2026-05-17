@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agri-Link | Private Admin</title>
-    <!-- Icons and Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -13,7 +12,7 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 20px; }
         #auth-container { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
         .login-logo { width: 150px; height: auto; margin-bottom: 10px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; background: #2d5a27; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .dashboard { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2d5a27; padding-bottom: 10px; margin-bottom: 20px; }
@@ -21,18 +20,41 @@
         table { width: 100%; border-collapse: collapse; font-size: 0.75em; min-width: 1900px; }
         th { background: #2d5a27; color: white; padding: 10px; text-align: left; }
         td { padding: 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
-        /* Uniform Signature Box Styling */
         .sig-img { width: 80px; height: 40px; object-fit: contain; border: 1px solid #eee; border-radius: 4px; background: #fafafa; }
         .btn-group { display: flex; gap: 10px; }
         .btn-csv { background: #1a3d5a; width: auto; padding: 8px 15px; }
         .btn-pdf { background: #8b0000; width: auto; padding: 8px 15px; }
         .btn-logout { background: #666; width: auto; padding: 8px 15px; }
         .btn-login { width: 100%; margin-top: 10px; }
+
+        /* Custom Interactive View Button */
+        .btn-view { background: #2d5a27; color: white; border-radius: 4px; padding: 5px 10px; width: auto; font-size: 0.9em; display: inline-block; }
+
+        /* MODAL WINDOW FOR REPAYMENT AND PROFILE DATA */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 8px; max-width: 750px; width: 90%; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .close { float: right; font-size: 24px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .close:hover { color: black; }
+        
+        /* Financial Metrics Grid Layout */
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0; }
+        .metric-card { background: #f9fbf9; border: 1px solid #e0e6e2; padding: 12px; border-radius: 6px; text-align: center; }
+        .metric-card h4 { margin: 0 0 5px 0; color: #666; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-card p { margin: 0; font-size: 1.2em; font-weight: bold; color: #2d5a27; }
+        
+        /* Inline Ledger Form Row Components */
+        .ledger-form { background: #f0f5f1; border-left: 4px solid #2d5a27; padding: 15px; border-radius: 4px; margin-top: 20px; }
+        .inline-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .inline-inputs input, .inline-inputs select { flex: 1; min-width: 130px; margin: 0; padding: 8px; }
+        .btn-log-pay { width: auto; padding: 8px 16px; background: #2d5a27; }
+
+        .sub-table { min-width: 100%; font-size: 0.9em; margin-top: 10px; box-shadow: none; border: 1px solid #eee; }
+        .sub-table th { background: #444; padding: 6px; }
+        .sub-table td { padding: 6px; }
     </style>
 </head>
 <body>
 
-<!-- LOGIN FORM -->
 <div id="auth-container">
     <img src="logo1.jpg" alt="Agri-Link Logo" class="login-logo">
     <h2 style="color: #2d5a27; margin-top: 0; margin-bottom: 20px;">Agri-Link Admin</h2>
@@ -43,7 +65,6 @@
     </button>
 </div>
 
-<!-- PRIVATE DASHBOARD -->
 <div id="dashboard" class="dashboard">
     <div class="header">
         <h2><i class="fas fa-database"></i> Agri-Link Loan Records</h2>
@@ -74,6 +95,7 @@
                     <th><i class="fas fa-signature"></i> W1 Sig</th>
                     <th><i class="fas fa-users"></i> Witness 2 & 📞</th>
                     <th><i class="fas fa-signature"></i> W2 Sig</th>
+                    <th><i class="fas fa-folder-open"></i> Actions</th>
                 </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -81,10 +103,88 @@
     </div>
 </div>
 
+<div id="ledgerModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3 id="m-name" style="color: #2d5a27; margin-top: 0; margin-bottom: 15px;">Borrower File</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85em; background: #fafafa; padding: 10px; border-radius: 4px;">
+            <div><strong>National ID:</strong> <span id="m-id"></span></div>
+            <div><strong>Contact Line:</strong> <span id="m-phone"></span></div>
+            <div><strong>Location/Village:</strong> <span id="m-location"></span></div>
+            <div><strong>Home Address:</strong> <span id="m-address"></span></div>
+        </div>
+
+        <h4 style="color: #2d5a27; margin-top: 20px; margin-bottom: 5px; border-bottom: 2px solid #2d5a27; padding-bottom: 3px;">Loan Balances</h4>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h4>Total Expected</h4>
+                <p id="card-expected">0 MWK</p>
+            </div>
+            <div class="metric-card">
+                <h4>Total Settled</h4>
+                <p id="card-paid" style="color: #2b7a1a;">0 MWK</p>
+            </div>
+            <div class="metric-card">
+                <h4>Balance Due</h4>
+                <p id="card-balance" style="color: #b81d1d;">0 MWK</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; background: #edf4ee; padding: 8px; font-size: 0.9em; font-weight: 500; border-radius: 4px; color: #2d5a27; margin-bottom: 15px;">
+            📌 Installment Schedule: <span id="m-schedule-term" style="font-weight: bold;"></span>
+        </div>
+
+        <div class="ledger-form">
+            <h4 style="margin: 0; color: #2d5a27; font-size: 0.95em;"><i class="fas fa-plus-circle"></i> Log Repayment Transaction</h4>
+            <div class="inline-inputs">
+                <input type="number" id="pay-amount" placeholder="Amount Paid (MWK)" required>
+                <input type="date" id="pay-date">
+                <select id="pay-method">
+                    <option value="National Bank">National Bank</option>
+                    <option value="Airtel Money">Airtel Money</option>
+                    <option value="TNM Mpamba">TNM Mpamba</option>
+                    <option value="Cash">Cash</option>
+                </select>
+                <input type="text" id="pay-ref" placeholder="Slip/Txn Reference">
+                <button class="btn-log-pay" onclick="savePayment()">Log Payment</button>
+            </div>
+            <div id="pay-status-message" style="margin-top: 8px; font-size: 0.85em; font-weight: bold;"></div>
+        </div>
+
+        <h4 style="color: #2d5a27; margin-top: 25px; margin-bottom: 5px;">Transaction History Statements</h4>
+        <div style="overflow-x: auto;">
+            <table class="sub-table">
+                <thead>
+                    <tr>
+                        <th>Date Processed</th>
+                        <th>Amount Received</th>
+                        <th>Method</th>
+                        <th>Reference Code</th>
+                    </tr>
+                </thead>
+                <tbody id="payment-history-rows"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <script>
     const SUPABASE_URL = 'https://hzfmqewyzrbiyrobrutb.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_oD7WVko3sBDT0Aw9WSM8lg_JmApl3tQ';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let activeBorrowerId = null;
+    let activeBorrowerObject = null;
+
+    // Check auth session persistent storage state on load
+    window.onload = async function() {
+        document.getElementById('pay-date').valueAsDate = new Date();
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) {
+            showDashboard();
+        }
+    }
 
     async function handleLogin() {
         const email = document.getElementById('email').value;
@@ -118,7 +218,7 @@
                     📞 ${row.phone || ''}
                 </td>
                 <td>${row.id_number || 'N/A'}</td>
-                <td>MWK ${Number(row.amount || 0).toLocaleString()}<br><small>${row.interest_rate || 0}% | ${row.repayment_months || 0} Mo</small></td>
+                <td>MWK ${Number(row.amount || 0).toLocaleString()}<br><small>${row.interest_rate || 5}% | ${row.repayment_months || 1} Mo</small></td>
                 <td><strong>${row.collateral_type || 'N/A'}</strong><br>Val: ${Number(row.collateral_value || 0).toLocaleString()}</td>
                 <td>${row.signature ? `<img src="${row.signature}" class="sig-img">` : 'N/A'}</td>
                 <td>
@@ -133,8 +233,129 @@
                     <small>📍 ${row.witness2_address || ''}</small>
                 </td>
                 <td>${row.witness2_signature ? `<img src="${row.witness2_signature}" class="sig-img">` : 'N/A'}</td>
+                <td>
+                    <button class="btn-view" onclick="openLedger(${row.id})"><i class="fas fa-folder-open"></i> Open</button>
+                </td>
             </tr>
         `).join('');
+    }
+
+    // Modal Interaction and Financial Ledger Calculation
+    async function openLedger(id) {
+        activeBorrowerId = id;
+        document.getElementById('pay-status-message').innerText = "";
+        document.getElementById('pay-amount').value = "";
+        document.getElementById('pay-ref').value = "";
+
+        const { data: b, error } = await _supabase.from('borrowers').select('*').eq('id', id).single();
+        if (error || !b) return;
+        activeBorrowerObject = b;
+
+        // Populate metadata info text
+        document.getElementById('m-name').innerText = b.full_name;
+        document.getElementById('m-id').innerText = b.id_number || 'N/A';
+        document.getElementById('m-phone').innerText = b.phone || 'N/A';
+        document.getElementById('m-location').innerText = `${b.village || 'N/A'}, ${b.district || ''}`;
+        document.getElementById('m-address').innerText = b.borrower_address || 'N/A';
+
+        // Perform Loan Equation Calculations
+        const principal = Number(b.amount) || 0;
+        const interestRate = (Number(b.interest_rate) || 20) / 100; // base default matching backend variables
+        const months = Number(b.repayment_months) || 1;
+
+        const totalInterest = principal * interestRate * months;
+        const totalExpected = principal + totalInterest;
+        const monthlyInstallment = totalExpected / months;
+
+        document.getElementById('m-schedule-term').innerText = `${Math.round(monthlyInstallment).toLocaleString()} MWK / Month for ${months} Months`;
+
+        // Pull transaction data history logs from repayments table
+        await loadRepaymentsLog(id, totalExpected);
+
+        document.getElementById('ledgerModal').style.display = 'block';
+    }
+
+    async function loadRepaymentsLog(borrowerId, totalExpected) {
+        const { data: payments, error } = await _supabase
+            .from('repayments')
+            .select('*')
+            .eq('borrower_id', borrowerId)
+            .order('payment_date', { ascending: false });
+
+        const historyBody = document.getElementById('payment-history-rows');
+        historyBody.innerHTML = '';
+        
+        let aggregatedPaid = 0;
+
+        if (!error && payments && payments.length > 0) {
+            payments.forEach(p => {
+                aggregatedPaid += Number(p.amount_paid);
+                historyBody.innerHTML += `<tr>
+                    <td>${p.payment_date}</td>
+                    <td><strong>${Number(p.amount_paid).toLocaleString()} MWK</strong></td>
+                    <td>${p.payment_method || 'N/A'}</td>
+                    <td><code>${p.reference || 'N/A'}</code></td>
+                </tr>`;
+            });
+        } else {
+            historyBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No payments logged yet for this account.</td></tr>`;
+        }
+
+        const remainingBalance = totalExpected - aggregatedPaid;
+
+        // Display updated summary dashboard metric values
+        document.getElementById('card-expected').innerText = Math.round(totalExpected).toLocaleString() + " MWK";
+        document.getElementById('card-paid').innerText = Math.round(aggregatedPaid).toLocaleString() + " MWK";
+        document.getElementById('card-balance').innerText = Math.round(remainingBalance).toLocaleString() + " MWK";
+    }
+
+    // Insert database entry record directly inside new repayments table
+    async function savePayment() {
+        const amt = parseFloat(document.getElementById('pay-amount').value);
+        const date = document.getElementById('pay-date').value;
+        const method = document.getElementById('pay-method').value;
+        const ref = document.getElementById('pay-ref').value;
+        const msg = document.getElementById('pay-status-message');
+
+        if (!amt || amt <= 0) {
+            msg.style.color = "red";
+            msg.innerText = "Error: Please input a valid payment value.";
+            return;
+        }
+
+        msg.style.color = "#444";
+        msg.innerText = "Processing submission log transaction...";
+
+        const { error } = await _supabase.from('repayments').insert([{
+            borrower_id: activeBorrowerId,
+            amount_paid: amt,
+            payment_date: date,
+            payment_method: method,
+            reference: ref,
+            collected_by: "Admin Panel"
+        }]);
+
+        if (error) {
+            msg.style.color = "red";
+            msg.innerText = "Error encountered: " + error.message;
+        } else {
+            msg.style.color = "green";
+            msg.innerText = "✅ Repayment entry added successfully!";
+            document.getElementById('pay-amount').value = "";
+            document.getElementById('pay-ref').value = "";
+            
+            // Re-run matching principal logic calculations to refresh UI live metrics balances
+            const principal = Number(activeBorrowerObject.amount) || 0;
+            const interestRate = (Number(activeBorrowerObject.interest_rate) || 20) / 100;
+            const months = Number(activeBorrowerObject.repayment_months) || 1;
+            const totalExpected = principal + (principal * interestRate * months);
+            
+            await loadRepaymentsLog(activeBorrowerId, totalExpected);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('ledgerModal').style.display = 'none';
     }
 
     function handleLogout() {
@@ -143,11 +364,15 @@
     }
 
     function downloadCSV() {
-        const rows = document.querySelectorAll("table tr");
+        // Targets active primary loan records table row data metrics matching historical exports
+        const table = document.getElementById("loanTable");
+        const rows = table.querySelectorAll("tr");
         let csv = [];
         for (let i = 0; i < rows.length; i++) {
             let row = [], cols = rows[i].querySelectorAll("td, th");
-            for (let j = 0; j < cols.length; j++) {
+            // Exclude last "Actions" column from data downloads
+            const totalCols = cols.length > 10 ? cols.length - 1 : cols.length;
+            for (let j = 0; j < totalCols; j++) {
                 let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/,/g, ";");
                 row.push('"' + data + '"');
             }
