@@ -11,7 +11,7 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 20px; }
         #auth-container { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
-        .login-logo { width: 120px; height: auto; margin-bottom: 10px; border-radius: 50%; }
+        .login-logo { width: 120px; height: auto; margin-bottom: 10px; }
         input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; background: #2d5a27; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .dashboard { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -52,18 +52,13 @@
         .sub-table th { background: #444; padding: 6px; color: white; text-align: left; }
         .sub-table td { padding: 6px; border-bottom: 1px solid #eee; }
 
-        .statement-logo { width: 70px; height: auto; object-fit: contain; }
+        .statement-logo { width: 75px; height: auto; display: block; }
     </style>
 </head>
 <body>
 
-<script>
-    // Hardcoded high-resolution graphical asset string used for canvas safety verification
-    const EMBEDDED_AGRILINK_LOGO = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%232d5a27'/><path d='M35 70 L45 35 L55 35 L65 70 Z' fill='%23ffffff'/><path d='M42 55 L58 55' stroke='%232d5a27' stroke-width='4'/><path d='M25 70 Q50 50 75 70' fill='none' stroke='%238bc34a' stroke-width='4'/><circle cx='50' cy='30' r='5' fill='%23ffeb3b'/></svg>";
-</script>
-
 <div id="auth-container">
-    <img src="logo1.jpg" onerror="this.src=EMBEDDED_AGRILINK_LOGO" alt="Agri-Link Logo" class="login-logo">
+    <img src="logo1.jpg" alt="Agri-Link Logo" class="login-logo">
     <h2 style="color: #2d5a27; margin-top: 0; margin-bottom: 20px;">Agri-Link Admin</h2>
     <input type="email" id="email" placeholder="Email Address">
     <input type="password" id="password" placeholder="Password">
@@ -123,8 +118,8 @@
             <div id="pdf-brand-header" style="display:none; margin-bottom: 25px; border-bottom: 3px solid #2d5a27; padding-bottom: 15px;">
                 <table style="width: 100%; min-width: 100%; border-collapse: collapse;">
                     <tr>
-                        <td style="width: 80px; padding: 0; border: none; vertical-align: middle;">
-                            <img id="pdf-logo-img" src="" alt="Agri-Link Corporate Logo" class="statement-logo">
+                        <td style="width: 90px; padding: 0; border: none; vertical-align: middle;">
+                            <div id="logo-canvas-container"></div>
                         </td>
                         <td style="padding-left: 15px; border: none; vertical-align: middle; text-align: left;">
                             <h2 style="color: #2d5a27; margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;">AGRI-LINK FINANCIAL SOLUTIONS</h2>
@@ -382,15 +377,47 @@
         }
     }
 
-    function downloadSingleStatement() {
+    // NEW LOGO RENDERING ENGINE: Converts your local file directly into HTML canvas components to bypass all browser blocks.
+    function prepareLogoForPDF() {
+        return new Promise((resolve) => {
+            const container = document.getElementById('logo-canvas-container');
+            container.innerHTML = ''; // Clean old assets
+            
+            const img = new Image();
+            img.crossOrigin = 'anonymous'; 
+            img.src = 'logo1.jpg?t=' + new Date().getTime(); // Anti-caching query trick
+            
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                // Convert your local logo1.jpg image stream into clean layout tags dynamically
+                const finalImg = document.createElement('img');
+                finalImg.src = canvas.toDataURL('image/jpeg');
+                finalImg.className = 'statement-logo';
+                container.appendChild(finalImg);
+                resolve();
+            };
+
+            img.onerror = function() {
+                // Secure fall-back text element if the file logo1.jpg is totally missing from root folder
+                container.innerHTML = '<span style="font-weight:bold; color:#2d5a27; font-size:14px;">AGRI-LINK</span>';
+                resolve();
+            };
+        });
+    }
+
+    async function downloadSingleStatement() {
         const element = document.getElementById('print-area');
         const headerBrand = document.getElementById('pdf-brand-header');
-        const logoTarget = document.getElementById('pdf-logo-img');
         
         document.getElementById('pdf-gen-date').innerText = new Date().toLocaleString();
         
-        // Feed compiled safe embedded image directly to avoid CORS blocks completely
-        logoTarget.src = EMBEDDED_AGRILINK_LOGO;
+        // Wait for the logo drawing engine to complete before canvas snapshot fires
+        await prepareLogoForPDF();
         headerBrand.style.display = 'block';
 
         const borrowerName = activeBorrowerObject ? activeBorrowerObject.full_name.replace(/\s+/g, '_') : 'Client';
@@ -399,7 +426,7 @@
             margin: [15, 15, 15, 15],
             filename: `AgriLink_Statement_${borrowerName}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, allowTaint: false },
+            html2canvas: { scale: 2, useCORS: true, allowTaint: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
@@ -417,7 +444,6 @@
         location.reload();
     }
 
-    // CSV DOWNLOAD ENGINE EXCLUDING COLUMNS 11+
     function downloadCSV() {
         const table = document.getElementById("loanTable");
         const rows = table.querySelectorAll("tr");
