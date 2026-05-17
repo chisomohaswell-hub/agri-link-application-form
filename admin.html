@@ -52,7 +52,6 @@
         .sub-table th { background: #444; padding: 6px; color: white; text-align: left; }
         .sub-table td { padding: 6px; border-bottom: 1px solid #eee; }
 
-        /* Styling for Statement Logo Layout */
         .statement-logo { width: 70px; height: auto; object-fit: contain; }
     </style>
 </head>
@@ -123,7 +122,7 @@
                         </td>
                         <td style="padding-left: 15px; border: none; vertical-align: middle; text-align: left;">
                             <h2 style="color: #2d5a27; margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;">AGRI-LINK FINANCIAL SOLUTIONS</h2>
-                            <p style="margin: 4px 0 0 0; color: #555; font-size: 13px; font-weight: 500; font-style: italic;">Official Loan Statement</p>
+                            <p style="margin: 4px 0 0 0; color: #555; font-size: 13px; font-weight: 500;">Official Loan Statement Summary</p>
                         </td>
                         <td style="padding: 0; border: none; vertical-align: bottom; text-align: right; color: #888; font-size: 11px;">
                             <strong>Issued On:</strong><br><span id="pdf-gen-date"></span>
@@ -137,8 +136,9 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85em; background: #fafafa; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
                 <div><strong>National ID:</strong> <span id="m-id"></span></div>
                 <div><strong>Contact Line:</strong> <span id="m-phone"></span></div>
+                <div><strong>District:</strong> <span id="m-district"></span></div>
                 <div><strong>Location/Village:</strong> <span id="m-location"></span></div>
-                <div><strong>Home Address:</strong> <span id="m-address"></span></div>
+                <div style="grid-column: span 2;"><strong>Home Address:</strong> <span id="m-address"></span></div>
             </div>
 
             <h4 style="color: #2d5a27; margin-top: 20px; margin-bottom: 5px; border-bottom: 2px solid #2d5a27; padding-bottom: 3px;">Loan Balances</h4>
@@ -280,7 +280,8 @@
         document.getElementById('m-name').innerText = b.full_name;
         document.getElementById('m-id').innerText = b.id_number || 'N/A';
         document.getElementById('m-phone').innerText = b.phone || 'N/A';
-        document.getElementById('m-location').innerText = `${b.village || 'N/A'}, ${b.district || ''}`;
+        document.getElementById('m-district').innerText = b.district || 'N/A';
+        document.getElementById('m-location').innerText = b.village || 'N/A';
         document.getElementById('m-address').innerText = b.borrower_address || 'N/A';
 
         const principal = Number(b.amount) || 0;
