@@ -17,7 +17,7 @@
         .dashboard { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2d5a27; padding-bottom: 10px; margin-bottom: 20px; }
         .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.75em; min-width: 1900px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75em; min-width: 2000px; }
         th { background: #2d5a27; color: white; padding: 10px; text-align: left; }
         td { padding: 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
         .sig-img { width: 80px; height: 40px; object-fit: contain; border: 1px solid #eee; border-radius: 4px; background: #fafafa; }
@@ -89,6 +89,7 @@
                 <tr>
                     <th><i class="far fa-calendar-alt"></i> Date</th>
                     <th><i class="fas fa-user"></i> Borrower & 📞 Contact</th>
+                    <th><i class="fas fa-map-marker-alt"></i> District</th>
                     <th><i class="fas fa-id-card"></i> ID Number</th>
                     <th><i class="fas fa-hand-holding-usd"></i> Loan Terms</th>
                     <th><i class="fas fa-box-open"></i> Collateral</th>
@@ -118,7 +119,7 @@
                 <table style="width: 100%; min-width: 100%; border-collapse: collapse;">
                     <tr>
                         <td style="width: 80px; padding: 0; border: none; vertical-align: middle;">
-                            <img src="logo1.jpg" alt="Agri-Link Corporate Logo" class="statement-logo">
+                            <img id="pdf-logo-img" src="" alt="Agri-Link Corporate Logo" class="statement-logo">
                         </td>
                         <td style="padding-left: 15px; border: none; vertical-align: middle; text-align: left;">
                             <h2 style="color: #2d5a27; margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;">AGRI-LINK FINANCIAL SOLUTIONS</h2>
@@ -204,6 +205,7 @@
 
     let activeBorrowerId = null;
     let activeBorrowerObject = null;
+    let base64LogoData = null; // Global cache variable tracking system memory data
 
     window.onload = async function() {
         document.getElementById('pay-date').valueAsDate = new Date();
@@ -211,6 +213,23 @@
         if (session) {
             showDashboard();
         }
+        // Pre-convert layout asset to base64 vector cache smoothly in the background
+        convertLogoToBase64();
+    }
+
+    // Dynamic translation engine formatting background imagery explicitly for PDF printer visibility safety
+    function convertLogoToBase64() {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = this.width;
+            canvas.height = this.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(this, 0, 0);
+            base64LogoData = canvas.toDataURL('image/jpeg');
+        };
+        img.src = 'logo1.jpg';
     }
 
     async function handleLogin() {
@@ -244,6 +263,7 @@
                     📍 ${row.borrower_address || row.village || ''}<br>
                     📞 ${row.phone || ''}
                 </td>
+                <td><strong>${row.district || 'N/A'}</strong></td>
                 <td>${row.id_number || 'N/A'}</td>
                 <td>MWK ${Number(row.amount || 0).toLocaleString()}<br><small>${row.interest_rate || 20}% | ${row.repayment_months || 1} Mo</small></td>
                 <td><strong>${row.collateral_type || 'N/A'}</strong><br>Val: ${Number(row.collateral_value || 0).toLocaleString()}</td>
@@ -378,8 +398,17 @@
     function downloadSingleStatement() {
         const element = document.getElementById('print-area');
         const headerBrand = document.getElementById('pdf-brand-header');
+        const logoTarget = document.getElementById('pdf-logo-img');
         
         document.getElementById('pdf-gen-date').innerText = new Date().toLocaleString();
+        
+        // Feed compiled safe memory data directly into target canvas source
+        if (base64LogoData) {
+            logoTarget.src = base64LogoData;
+        } else {
+            logoTarget.src = 'logo1.jpg'; // Fallback connection rule
+        }
+
         headerBrand.style.display = 'block';
 
         const borrowerName = activeBorrowerObject ? activeBorrowerObject.full_name.replace(/\s+/g, '_') : 'Client';
@@ -388,7 +417,7 @@
             margin: [15, 15, 15, 15],
             filename: `AgriLink_Statement_${borrowerName}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
+            html2canvas: { scale: 2, useCORS: true, allowTaint: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
@@ -412,7 +441,7 @@
         let csv = [];
         for (let i = 0; i < rows.length; i++) {
             let row = [], cols = rows[i].querySelectorAll("td, th");
-            const totalCols = cols.length > 10 ? cols.length - 1 : cols.length;
+            const totalCols = cols.length > 11 ? cols.length - 1 : cols.length;
             for (let j = 0; j < totalCols; j++) {
                 let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/,/g, ";");
                 row.push('"' + data + '"');
